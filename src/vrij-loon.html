@@ -374,6 +374,15 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                                             <td>{{nf cumulatief.reiskosten /}}</td>
                                         </tr>
                                         {{/if}}
+                                        {{if wkrVergoeding }}
+                                        <tr>
+                                            <td>WKR-onkostenvergoeding (onbelast)</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{nf wkrVergoeding /}}</td>
+                                            <td>{{nf cumulatief.wkrVergoeding /}}</td>
+                                        </tr>
+                                        {{/if}}
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -772,25 +781,31 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="contractUren">Contract Uren</label>
-                                <input type="number" class="form-control" id="contractUren" name="contractUren" step='0.01' placeholder="40" required>
+                                <input type="number" class="form-control" id="contractUren" name="contractUren" step="0.01" placeholder="40" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="brutoLoon">Contract Loon</label>
-                                <input type="number" class="form-control" id="brutoLoon" name="brutoLoon" step='0.01' placeholder="3750" required>
+                                <input type="number" class="form-control" id="brutoLoon" name="brutoLoon" step="0.01" placeholder="3750" required>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="reiskostenOnbelast">Reiskilometers/d</label>
-                                <input type="number" class="form-control" id="reiskostenOnbelast" name="reiskostenOnbelast" placeholder="25">
+                                <input type="number" step="0.01" class="form-control" id="reiskostenOnbelast" name="reiskostenOnbelast" placeholder="25">
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="bijtelling">Bijtelling <i class="glyphicons glyphicons-car"></i></label>
-                                <input type="number" class="form-control" id="bijtelling" name="bijtelling" step='0.01' placeholder="0">
+                                <input type="number" class="form-control" id="bijtelling" name="bijtelling" step="0.01" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="wkrVergoeding">WKR vergoeding <i class="glyphicons glyphicons-car"></i></label>
+                                <input type="number" class="form-control" id="wkrVergoeding" name="wkrVergoeding" step="0.01" placeholder="0">
                             </div>
                         </div>
                     </div>
@@ -825,14 +840,11 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                         <div class="col-md-12">
                             <div class="pull-left">
                                 <div class="btn-group" data-toggle="buttons">
-                                    <label class="btn btn-primary active" data-vrijloon-action="!laadCodes" data-vrijloon-parameter="2018">
-                                    <input type="radio" name="codeJaar" value="2018">2018
+                                    <label class="btn btn-primary active" data-vrijloon-action="!laadCodes" data-vrijloon-parameter="2023">
+                                    <input type="radio" name="codeJaar" value="2023">2023
                                     </label>
-                                    <label class="btn btn-primary" data-vrijloon-action="!laadCodes" data-vrijloon-parameter="2017">
-                                    <input type="radio" name="codeJaar" value="2017">2017
-                                    </label>
-                                    <label class="btn btn-primary" data-vrijloon-action="!laadCodes" data-vrijloon-parameter="2016">
-                                    <input type="radio" name="codeJaar" value="2016">2016
+                                    <label class="btn btn-primary" data-vrijloon-action="!laadCodes" data-vrijloon-parameter="2022">
+                                    <input type="radio" name="codeJaar" value="2022">2022
                                     </label>
                                 </div>
                             </div>
@@ -898,8 +910,13 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                 </div>
                 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Sluit</button>
-                    <button type="submit" class="btn btn-primary">Bewaar</button>
+                    <div class="col-md-8 footer-note">
+                        Noot: voor DGA kies tabel 0, wit, looncode 17, code zvw M.
+                    </div>
+                    <div class="col-md-4 footer-buttons">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Sluit</button>
+                        <button type="submit" class="btn btn-primary">Bewaar</button>
+                    </div>
                 </div>
                 </form>
             </div><!-- /.modal-content -->
@@ -923,16 +940,13 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                                 <label>Jaar</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-10">
                             <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-primary active">
-                                <input type="radio" name="jaar" value="2018" checked>2018
+                                <label class="btn btn-primary">
+                                <input type="radio" name="jaar" value="2023">2023
                                 </label>
                                 <label class="btn btn-primary">
-                                <input type="radio" name="jaar" value="2017">2017
-                                </label>
-                                <label class="btn btn-primary">
-                                <input type="radio" name="jaar" value="2016">2016
+                                <input type="radio" name="jaar" value="2022">2022
                                 </label>
                             </div>
                         </div>
@@ -1017,14 +1031,16 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
     <script src="../bower_components/taffy/taffy.js"></script>
     <script src="../bower_components/jsrender/jsrender.js"></script>
     <script src="../bower_components/jszip/dist/jszip.js"></script>
-    <script src="../bower_components/file-saver/FileSaver.js"></script>
-    <script src="../bower_components/teamdf/jquery-number/jquery.number.js"></script>
+    <script src="../bower_components/file-saver/dist/FileSaver.js"></script>
+    <script src="../bower_components/jquery-number/jquery.number.js"></script>
     <script src="../bower_components/chart.js/dist/Chart.js"></script>
     
     <script src="js/vrij-loon.js"></script>
     <script src="js/ib2016.js"></script>
     <script src="js/ib2017.js"></script>
     <script src="js/ib2018.js"></script>
+    <script src="js/ib2022.js"></script>
+    <script src="js/ib2023.js"></script>
     <!-- endbuild -->
     <!-- endembed -->
     <!-- endzip -->

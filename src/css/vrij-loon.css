@@ -175,6 +175,15 @@ body {
     text-align: right;
 }
 
+.footer-note {
+    text-align: left;
+    padding-left: 0;
+}
+
+.footer-buttons {
+    padding-right: 0;
+}
+
 .pre {
     white-space: pre-wrap;
 }
@@ -186,18 +195,18 @@ body {
 }
 
 .chart canvas {
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
+    user-select: none;
 }
 
 @media print {
+    body {
+        padding: 0;
+    }
+
     .main {
         margin: 0;
         padding: 0;
         width: 100%;
-        background: green;
-        page-break-after: always;
     }
     
     .main:last-child {

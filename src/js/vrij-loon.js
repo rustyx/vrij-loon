@@ -73,7 +73,7 @@
             return false;
         }
         
-        berekendTarief = Math.floor(berekendTarief);
+        berekendTarief = Math.round(berekendTarief * 100) / 100;
         
         if(typeof tarief.minimum != 'undefined' && berekendTarief < tarief.minimum) {
             return 0;
@@ -85,7 +85,11 @@
     }
     
     function format_number(number) {
-        return $.number(number, 2, ',', '.');
+        try {
+            return $.number(number, 2, ',', '.');
+        } catch (e) {
+            return number ? number : 0;
+        }
     }
     
     $.fn.vrijLoon = function( options ) {
@@ -159,6 +163,12 @@
             
             return API.tariefBerekening(inkomen, tarief);
         },
+        floorCents: function(value) {
+            return Math.floor(value * 100) / 100;
+        },
+        roundCents: function(value) {
+            return Math.round(value * 100) / 100;
+        },
         // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/model-loonstaat-2017
         maakLoonstaat: function(maand, inkomstenverhouding, werkgever, werknemer, voorgaandeLoonstaten) {
             var cumulatieven = {}, voorgaandeLoonstaat;
@@ -193,7 +203,7 @@
             
             // Bereken de verschuldigde loonbelasting
             // kolom15
-            var loonbelasting = API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]) / 12;
+            var loonbelasting = this.floorCents(API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]) / 12);
 
             // Bereken de Zvw premie, rekening houdend met het maximale bijdrage inkomen
             // kolom16
@@ -209,7 +219,7 @@
                 
                 if(inkomstenverhouding.codeZvw == 'K' || inkomstenverhouding.codeZvw == 'M') {
                     var tariefZvw = this.premieZvw[inkomstenverhouding.codeZvw == 'K' ? 'werkgeversHeffing' : 'eigenBijdrage'];
-                    premieZvw = API.tariefBerekening(salaris, tariefZvw);
+                    premieZvw = this.floorCents(API.tariefBerekening(salaris, tariefZvw));
                 }
             }
             
@@ -217,12 +227,12 @@
             // kolom18
             var loonheffingsKorting = 0;
             var arbeidsKorting = 0;
-            if(inkomstenverhouding.korting === 'ja') {
+            if(inkomstenverhouding.loonheffingsKorting == '1') {
                 loonheffingsKorting = this.berekenTarief('heffingsKorting', verwachtArbeidsInkomen, aowParameter);
                 arbeidsKorting = this.berekenTarief('arbeidsKorting', verwachtArbeidsInkomen, aowParameter);
                 
-                loonheffingsKorting = loonheffingsKorting / 12;
-                arbeidsKorting = arbeidsKorting / 12;
+                loonheffingsKorting = this.roundCents(loonheffingsKorting / 12);
+                arbeidsKorting = this.roundCents(arbeidsKorting / 12);
             }
             
             // Bereken het aantal loon dagen in deze maand
@@ -237,9 +247,11 @@
             var reiskilometers = 0, reiskosten = 0;
             if(inkomstenverhouding.reiskostenOnbelast) {
                 reiskilometers = inkomstenverhouding.reiskostenOnbelast * loonDagen;
-                reiskosten = Math.floor(100 * reiskilometers * this.onbelasteKmVergoeding) / 100;
+                reiskosten = this.floorCents(reiskilometers * this.onbelasteKmVergoeding);
             }
-            
+
+            var wkrVergoeding = this.roundCents(parseFloat(inkomstenverhouding.wkrVergoeding) || 0);
+
             var uurloon = salaris / 174;
             var minimumloon = 0;
             var leeftijd = this.kalenderJaar - 1*werknemer.geboorteDatum.substr(0,4);
@@ -255,13 +267,13 @@
                 }
             }
             
-            var kolom3 = Math.floor(100 * salaris) / 100;
-            var kolom15 = Math.floor(100 * (loonbelasting - loonheffingsKorting - arbeidsKorting)) / 100;
-            var kolom17 = Math.floor(100 * (kolom3 - premieZvw - kolom15)) / 100;
-            var kolom18 = Math.floor(100 * arbeidsKorting) / 100;
-            var brutoLoon = Math.floor(100 * (salaris)) / 100;
-            var nettoLoon = Math.floor(100 * (salaris - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting)) / 100;
-            var uitbetaald = Math.floor(100 * (nettoLoon + reiskosten)) / 100;
+            var kolom3 = salaris;
+            var kolom15 = loonbelasting - loonheffingsKorting - arbeidsKorting;
+            var kolom17 = kolom3 - premieZvw - kolom15;
+            var kolom18 = arbeidsKorting;
+            var brutoLoon = salaris;
+            var nettoLoon = salaris - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting;
+            var uitbetaald = nettoLoon + reiskosten + wkrVergoeding;
             
             return {
                 jaar: 1*this.kalenderJaar,
@@ -293,6 +305,7 @@
                 uurLoon: uurloon,
                 reiskilometers: reiskilometers,
                 reiskosten: reiskosten,
+                wkrVergoeding: wkrVergoeding,
                 inkomstenverhouding: inkomstenverhouding,
                 leeftijd: leeftijd,
                 werknemer: werknemer,
@@ -476,7 +489,7 @@
                     
                     var now = new Date();
                     data['vandaag'] = ('00'+now.getDate()).slice(-2) + '-' +
-                                      ('00'+now.getMonth()).slice(-2) + '-' +
+                                      ('00'+now.getMonth() + 1).slice(-2) + '-' +
                                       now.getFullYear();
 
                     document.title = 'Vrij Loon - Loonstrook ' + data.jaar + '-' + ('00'+data.periode).slice(-2) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
@@ -639,10 +652,10 @@
             for(var dbname in db) {
                 dbs[dbname] = db[dbname]().get();
             }
-            return window.btoa(unescape(encodeURIComponent(JSON.stringify(dbs))));
+            return JSON.stringify(dbs, null, 2);
         },
         unpackDatabase: function(dbs) {
-            dbs = JSON.parse(decodeURIComponent(escape(window.atob(dbs))));
+            dbs = JSON.parse(dbs);
             
             if(dbs.werkgever && dbs.werknemer && dbs.inkomstenverhouding && dbs.loonuitdraai) {
                 for(var dbname in dbs) {
@@ -668,7 +681,7 @@
                                         ('00'+now.getSeconds()).slice(-2);
                                         
             
-            zip.file(name + '.backup', this.packDatabase() );
+            zip.file(name + '.json', this.packDatabase() );
             zip.generateAsync({type:"blob"}).then(function(content) {
                 // see FileSaver.js
                 saveAs(content, name +'.zip');
@@ -686,6 +699,10 @@
                         
                         zip.file(zipEntry.name).async("string")
                         .then(function success(data) {
+                            if (zipEntry.name.match(/\.backup$/)) {
+                                // back compat
+                                data = JSON.parse(decodeURIComponent(escape(window.atob(data))));
+                            }
                             if(!API.unpackDatabase(data)) {
                                 API.notification('Backup restore mislukt!', 'Vermoedelijk bevat het bestand: '+zipEntry.name+' geen geldige VrijLoon databases', 'danger', API.container.find('.main'));
                             }else{
@@ -745,8 +762,9 @@
                     this.laadCodes(gekozenJaar);
                 }else if(type == 'maak-loonuitdraai') {
                     var now = new Date();
-                    form.find('[name="maand"]').prop('checked', false).attr('checked', '').trigger('click')
-                        .filter('[value="'+(now.getMonth() + 1)+'"]').prop('checked', true).attr('checked', 'checked').trigger('click');
+                    now.setDate(now.getDate() - 5);
+                    form.find('[name="jaar"]').filter('[value="'+(now.getFullYear())+'"]').prop('checked', false).trigger('click');
+                    form.find('[name="maand"]').filter('[value="'+(now.getMonth() + 1)+'"]').prop('checked', false).trigger('click');
                     
                     this.laadVanuitDatabase(modal, 'inkomstenverhouding');
                 }

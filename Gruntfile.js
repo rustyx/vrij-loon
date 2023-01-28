@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
     copy: {
       dist: {
-        files: [ 
+        files: [
             {src: 'src/vrij-loon.html', dest: 'dist/vrij-loon.html'},
             { expand: true, flatten: true, src: 'bower_components/bootstrap/dist/fonts/*', dest: 'dist/fonts/' },
         ]
@@ -22,47 +22,44 @@ module.exports = function(grunt) {
     usemin: {
         html: 'dist/vrij-loon.html',
     },
-    
+
     uglify: {
         options: {
             preserveComments: 'some'
         },
     },
-    
+
     replace: {
         build: {
             options: {
                 patterns: [{
-                      match: 'version',
-                      replacement: 'v<%= pkg.version %>'
-                    },{
                     match: /<!--\s*embed:?(zip)?\s*-->([\s\S]+?)<!--\s*endembed\s*-->/gm,
                     replacement: function() {
                         if(arguments[2].length) {
                             var content = {css: '', js: ''},
                                 files = arguments[2].match(/(src|href)=["']?([^"']+)["']?/gm);
-                            
+
                             if(files.length) {
                                 var file, cssOrJs, replacement = '';
-                                
+
                                 var defer = arguments[2].match(/ defer/i);
                                 for(var i = 0; i < files.length; i++) {
                                     file = 'dist/' + files[i].substr(4).replace(/["'=]/g, ''); // Fix for buggy editor syntax highlighting: '"
                                     cssOrJs = files[i].match(/href/) ? 'css' : 'js';
-                                
+
                                     if(arguments[1] == 'zip' && files.length == 1 && grunt.file.exists(file + '.zip')) {
                                         replacement+= '<script defer>JSZip.loadAsync(window.atob(\'';
                                         replacement+= grunt.file.read(file + '.zip', { encoding: null }).toString('base64');
                                         replacement+= '\')).then(function(a){return a.file(\'' + file.substr(file.lastIndexOf('/')+1) + '\').async("string"); })';
-                                        
+
                                         if(cssOrJs == 'css') {
                                             replacement+= '.then(function(a){b=document.createElement(\'style\');b.innerText=a;document.querySelector(\'head\').appendChild(b);});';
                                         }else if(cssOrJs == 'js') {
                                             replacement+= '.then(function(a){b=document.createElement(\'script\');b.text=a;document.body.appendChild(b);});';
                                         }
-                                        
+
                                         replacement+= '</script>';
-                                        
+
                                         // Immediately cleanup zip files
                                         grunt.file.delete(file + '.zip');
                                     }else{
@@ -72,7 +69,7 @@ module.exports = function(grunt) {
                                 if(content['css']) {
                                     replacement+= '<style type="text/css">' + content['css'] + '\n</style>';
                                 }
-                                
+
                                 if(content['js']) {
                                     replacement+= '<script' + (defer ? ' defer' : '') + '>' + content['js'] + '\n</script>';
                                 }
@@ -86,7 +83,7 @@ module.exports = function(grunt) {
                 {expand: false, src: ['dist/vrij-loon.html'], dest: 'dist/vrij-loon.single.html'}
             ]
         },
-        bumpVersion: {
+        version: {
             options: {
                 patterns: [
                     { match: 'version', replacement: 'v<%= pkg.version %>' },
@@ -98,7 +95,7 @@ module.exports = function(grunt) {
             ]
         }
     },
-    
+
     embedFonts: {
         all: {
             files: {
@@ -106,7 +103,7 @@ module.exports = function(grunt) {
             }
         }
     },
-    
+
     htmlmin: {
         dist: {
             options: {
@@ -152,7 +149,7 @@ module.exports = function(grunt) {
             ]
         },
     },
-    
+
     embedZippedPrepare: {
         html: {
             options: {},
@@ -161,14 +158,14 @@ module.exports = function(grunt) {
             ]
         },
     },
-    
+
     release: {
         options: {
             npm: false,
             tagName: 'v<%= version %>'
         }
     }
-    
+
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -185,36 +182,36 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('embedZippedPrepare', '', function() {
     var options = this.options(),
         staging = options.staging || '.tmp/zip/',
-        compressTasks = {}, 
+        compressTasks = {},
         srcConfig = {};
-    
+
     this.files.forEach(function(filePair) {
         var destFile = filePair.dest,
             fileBase = destFile.substr( destFile.lastIndexOf('/') + 1 ),
             content = '';
-        
+
         filePair.src.forEach(function(srcFile) {
             var fileName;
-            
+
             srcConfig[destFile] = { html: [], css: [], js: [] };
-            
-            compressTasks[fileBase] = { 
+
+            compressTasks[fileBase] = {
                 options: {
                     archive: staging + '/' + fileBase + '.zip',
                 },
                 files: [ { expand: true, cwd: '.tmp/zip/', src: [], dest: '/' } ],
             };
-            
-            
+
+
             content+= grunt.file.read(srcFile).replace(/<!--\s*zip:(css|js|html)?\s*-->([\s\S]+?)<!--\s*endzip\s*-->/gm, function() {
                 var counter = srcConfig[destFile][arguments[1]].length + 1;
-                
+
                 fileName = arguments[1].substr(0,1) + counter + '.' + arguments[1];
-                
+
                 srcConfig[destFile][arguments[1]].push(fileName);
-                
+
                 compressTasks[fileBase].files[0].src.push(fileName);
-                
+
                 if(arguments[1] == 'html') {
                     grunt.file.write(staging + fileName, arguments[2], { encoding: 'utf-8' });
                 }else{
@@ -227,41 +224,41 @@ module.exports = function(grunt) {
                     });
                     grunt.file.write(staging + fileName, subcontent, { encoding: 'utf-8' });
                 }
-                
+
                 return '';
             });
         });
-        
+
         grunt.file.write(destFile, content);
-        
+
         var compressConfig = grunt.config('compress') || {};
         compressConfig = compressTasks;
         grunt.config('compress', compressConfig );
-        
+
         var embedZippedConfig = grunt.config('embedZipped') || {}
         embedZippedConfig[grunt.task.current.target] = { options: { srcConfig: srcConfig } };
         grunt.config('embedZipped', embedZippedConfig);
     });
   });
-  
+
   grunt.registerMultiTask('embedZipped', '', function() {
     var options = this.options();
-    
+
     var prepareOptions = grunt.config('embedZippedPrepare')[grunt.task.current.target].options;
-    
+
     var staging = prepareOptions.staging || '.tmp/zip/';
-    
+
     // Add the javascript that unzips the embedded zipfile,
     // use promises to ensure we load data in the right order
     // first html, then css, then js
     for(var srcFile in options.srcConfig) {
         var content = grunt.file.read(srcFile);
-        
+
         content = content.replace(/<\/body>/i, function() {
             replacement = '<script defer>JSZip.loadAsync(window.atob(\'';
             replacement+= grunt.file.read(staging + srcFile.substr( srcFile.lastIndexOf('/') + 1) + '.zip', { encoding: null }).toString('base64');
             replacement+= '\')).then(function(zip) {';
-            
+
             for(var type in options.srcConfig[srcFile]) {
                 for(var i = 0; i < options.srcConfig[srcFile][type].length; i++) {
                     if(type == 'html' && i == 0) {
@@ -271,7 +268,7 @@ module.exports = function(grunt) {
                                 return zip.file('` + options.srcConfig[srcFile][type][i] + `').async("string");
                                 })`;
                     }
-                    
+
                     if(type == 'css') {
                         replacement+= `.then(function(cssCode){
                             return new Promise(function(resolve){
@@ -302,29 +299,30 @@ module.exports = function(grunt) {
             }
             replacement+= '});</script>';
             replacement+= arguments[0];
-            
+
             return replacement;
         });
-        
+
         grunt.file.write(srcFile, content);
     }
   });
 
-  grunt.registerTask('build', ['useminPrepare', 
-                                 'copy', 
-                                 'concat', 
-                                 'cssmin', 
-                                 'uglify', 
-                                 'usemin', 
-                                 'embedFonts', 
-                                 'replace:build', 
-                                 'htmlmin:dist', 
-                                 'htmlmin:distSingle', 
-                                 'embedZippedPrepare', 
-                                 'compress', 
-                                 'embedZipped', 
+  grunt.registerTask('build', ['useminPrepare',
+                                 'copy',
+                                 'concat',
+                                 'cssmin',
+                                 'uglify',
+                                 'usemin',
+                                 'embedFonts',
+                                 'replace:version',
+                                 'replace:build',
+                                 'htmlmin:dist',
+                                 'htmlmin:distSingle',
+                                 'embedZippedPrepare',
+                                 'compress',
+                                 'embedZipped',
                                  'htmlmin:distSingleJS']);
-  
+
   // Convert Help page to README.md
   grunt.registerTask('readme', function() {
     var toMarkdown = require('to-markdown'),
@@ -332,10 +330,10 @@ module.exports = function(grunt) {
         re = /help<\/h1>([\s\S]+?<\/p>\s*<\/div>)\s*<\/p>\s*<\/div>/mi,
         matches = re.exec(file),
         mdReadme = toMarkdown(matches[1], { gfm: true });
-    
+
     header = '# Vrij Loon\n\n';
     grunt.file.write('README.md', header + mdReadme.replace(/<\/?div>/gi, ''));
   });
-  
+
 };
 
