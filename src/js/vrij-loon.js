@@ -56,6 +56,17 @@
         API.log('Onbekende waarde voor aow parameter: ' + aow);
         
     }
+
+    function zpad(s, len) {
+        var str = String(s);
+        if (len === undefined) {
+            len = 2;
+        }
+        while (str.length < len) {
+            str = '0' + str;
+        }
+        return str;
+    }
     
     function bereken(bedrag, tarief) {
         var berekendTarief = 0;
@@ -175,10 +186,13 @@
             //for(var prevMaand in voorgaandeLoonstaten) {
             for(var prevMaand = 0; prevMaand < voorgaandeLoonstaten.length; prevMaand++) {
                 for(var kolom in voorgaandeLoonstaten[prevMaand]) {
-                    if (!cumulatieven[kolom]) {
-                        cumulatieven[kolom] = 0
+                    if (typeof voorgaandeLoonstaten[prevMaand][kolom] === 'string') {
+                        continue;
                     }
-                    cumulatieven[kolom]+= voorgaandeLoonstaten[prevMaand][kolom];
+                    if (!cumulatieven[kolom]) {
+                        cumulatieven[kolom] = 0;
+                    }
+                    cumulatieven[kolom] += voorgaandeLoonstaten[prevMaand][kolom];
                 }
             }
 
@@ -274,6 +288,8 @@
             var brutoLoon = salaris;
             var nettoLoon = salaris - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting;
             var uitbetaald = nettoLoon + reiskosten + wkrVergoeding;
+            var now = new Date();
+            var vandaag = zpad(now.getDate()) + '-' + zpad(now.getMonth() + 1) + '-' + now.getFullYear();
             
             return {
                 jaar: 1*this.kalenderJaar,
@@ -310,6 +326,7 @@
                 leeftijd: leeftijd,
                 werknemer: werknemer,
                 werkgever: werkgever,
+                verwerkingsdatum: vandaag,
             };
         },
     };
@@ -461,7 +478,7 @@
                 if(tabId == 'loonstaat') {
                     var tmpl = $.templates( $.fn.vrijLoon.tarieven[data.jaar].loonstaatTemplate );
                     
-                    document.title = 'Vrij Loon - Loonstaat ' + data.jaar + '-' + ('00'+data.periode).slice(-2) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
+                    document.title = 'Vrij Loon - Loonstaat ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
                     body.html( tmpl.render(data) );
                 }else if(tabId == 'loonstrook') {
                     var tmpl = $.templates('#tmpl-' + tabId);
@@ -488,11 +505,11 @@
                     }
                     
                     var now = new Date();
-                    data['vandaag'] = ('00'+now.getDate()).slice(-2) + '-' +
-                                      ('00'+now.getMonth() + 1).slice(-2) + '-' +
+                    data['vandaag'] = zpad(now.getDate()) + '-' +
+                                      zpad(now.getMonth() + 1) + '-' +
                                       now.getFullYear();
 
-                    document.title = 'Vrij Loon - Loonstrook ' + data.jaar + '-' + ('00'+data.periode).slice(-2) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
+                    document.title = 'Vrij Loon - Loonstrook ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
                     body.html( tmpl.render(data) );
                 } else {
                     
@@ -674,11 +691,11 @@
             var zip = new JSZip(),
                 now = new Date(),
                 name = 'vrijloon-backup-'+now.getFullYear() + 
-                                        ('00'+(now.getMonth()+1)).slice(-2) + 
-                                        ('00'+now.getDate()).slice(-2) + 
-                                        ('00'+now.getHours()).slice(-2) + 
-                                        ('00'+now.getMinutes()).slice(-2) + 
-                                        ('00'+now.getSeconds()).slice(-2);
+                                        zpad(now.getMonth() + 1) + 
+                                        zpad(now.getDate()) + 
+                                        zpad(now.getHours()) + 
+                                        zpad(now.getMinutes()) + 
+                                        zpad(now.getSeconds());
                                         
             
             zip.file(name + '.json', this.packDatabase() );
