@@ -33,7 +33,7 @@ Volg de volgende stappen:
 - Stap 3: Voeg een inkomstenverhouding toe <small>_Dit is meestal gelijk aan een arbeidsovereenkomst_</small>
 - Stap 4: Maak een loonuitdraai!
 
-Voor een volledige uitleg van de invoervelden bij de inkomstenverhouding verwijzen wij u naar het [Handboek Loonheffingen](https://www.belastingdienst.nl/bibliotheek/handboeken/html/boeken/HL/stappenplan.html) van de belastingdienst.
+Voor een volledige uitleg van de invoervelden bij de inkomstenverhouding verwijzen wij u naar het [Handboek Loonheffingen](https://www.belastingdienst.nl/wps/wcm/connect/nl/personeel-en-loon/) van de belastingdienst.
 
 
 
