@@ -36,6 +36,14 @@ Volg de volgende stappen:
 Voor een volledige uitleg van de invoervelden bij de inkomstenverhouding verwijzen wij u naar het [Handboek Loonheffingen](https://www.belastingdienst.nl/wps/wcm/connect/nl/personeel-en-loon/) van de belastingdienst.
 
 
+<a name="release"></a>
+
+### Voor softwareontwikkelaars: how maak ik een release van een nieuwe versie?
+
+1. Pas het versienummer in `package.json` aan.
+2. `grunt build`
+3. `git commit`, `git push`
+4. (eventueel) Upload de `dist` folder naar je web server.
 
 <a name="database"></a>
 
