@@ -19,7 +19,7 @@
     var tarief;
         
     // Handboek Loonheffingen
-    // https://download.belastingdienst.nl/belastingdienst/docs/nieuwsbrief-loonheffingen-2023-lh2091t31fd.pdf
+    // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/handboek-loonheffingen-2023
     
     $.fn.vrijLoon.tarieven['2023'] = tarief = $.extend( {}, $.fn.vrijLoon.basisTarief, {
         kalenderJaar: 2023,

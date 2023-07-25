@@ -136,7 +136,7 @@
                             <p>Vrij Loon is een open programma dat door iedereen vrij gebruikt kan worden om loonstaten en loonstroken te maken die je moet bijhouden als je een eigen loonadministratie beheert.
                                 Alhoewel het project begon als een test om nieuwe technieken uit te proberen, is het wel de bedoeling dat Vrij Loon een correct (maar vooralsnog beperkt) alternatief bied voor betaalde diensten.<br/>
                                 <br/>
-                                Vooralsnog wordt eigenlijk alleen een DGA loon zonder werknemersverzekeringen, zonder aftrekposten en zonder bijtelling ondersteund. 
+                                Vooralsnog wordt eigenlijk alleen een DGA loon zonder werknemersverzekeringen, zonder aftrekposten ondersteund. 
                                 Hulp bij het implementeren van missende berekeningen wordt zeer op prijsgesteld.
                             </p>
                         </div>
@@ -241,7 +241,6 @@
                             <p class="well well-sm">&#9744; Unit tests<br/>
 &#9744; Mogelijkheid toevoegen om bedragen op een loonuitdraai aan te passen (bv eenmalige uitbetaling toevoegen)<br/>
 &#9744; Kilometervergoeding aanpassen, rekening houdend met de onbelaste grondslag<br/>
-&#9744; Bijtelling van leaseauto toevoegen<br/>
 &#9744; Aftrekposten toevoegen<br/>
 &#9744; Berekeningen voor werknemersverzekeringen toevoegen?<br/>
 &#9744; Encrypt de backups<br/>
@@ -344,6 +343,15 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                                             <td><strong>{{nf brutoLoon /}}</strong></td>
                                             <td></td>
                                         </tr>
+                                        {{if bijtelling }}
+                                        <tr>
+                                            <td>Bijtelling auto</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{nf bijtelling /}}</td>
+                                            <td>{{nf cumulatief.bijtelling /}}</td>
+                                        </tr>
+                                        {{/if}}
                                         <tr>
                                             <td>Loonheffing</td>
                                             <td></td>

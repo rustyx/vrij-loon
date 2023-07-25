@@ -197,10 +197,14 @@
             }
 
             var salaris = parseInt(inkomstenverhouding.brutoLoon);
+            var bijtelling = parseFloat(inkomstenverhouding.bijtelling) || 0;
+            var loonInGeld = salaris;
+            var loonInNatura = bijtelling;
+            var loonVoorIB = loonInGeld + loonInNatura;
             
             // Bereken het loon voor de werknemersverzekeringen, rekenind houdend met het maximum rekenbedrag
             // TODO: dit ondersteunen we helaas (nog) niet
-            var kolom8 = inkomstenverhouding.codeLoon == 17 ? 0 : salaris;
+            var loonVoorWV = inkomstenverhouding.codeLoon == 17 ? 0 : loonVoorIB;
             
             // Bereikt de werknemer dit jaar de AOW leeftijd?
             // TODO: we ondersteunen (vooralsnog) alleen een leeftijd jonger dan AOW
@@ -212,8 +216,8 @@
             // Het verwachte arbeidsinkomen gebruiken we om de juiste arbeidsKortingen toe te passen
             // Als we minder dan 12 voorgaande loonstaten hebben corrigeren we hiervoor met het huidige salaris
             // Op deze manier zal het minder snel voorkomen dat je te veel arbeidsKorting krijgt
-            var verwachtArbeidsInkomen = cumulatieven.kolom3 || 0 + cumulatieven.kolom4 || 0 + cumulatieven.kolom5 || 0;
-                verwachtArbeidsInkomen+= (13 - maand + 12 - rekenMaandenInJaar) * salaris;
+            var verwachtArbeidsInkomen = (cumulatieven.kolom3 || 0) + (cumulatieven.kolom4 || 0) + (cumulatieven.kolom5 || 0);
+            verwachtArbeidsInkomen += (13 - maand + 12 - rekenMaandenInJaar) * loonVoorIB;
             
             // Bereken de verschuldigde loonbelasting
             // kolom15
@@ -221,19 +225,19 @@
 
             // Bereken de Zvw premie, rekening houdend met het maximale bijdrage inkomen
             // kolom16
-            var premieZvw = null, kolom12 = null;
+            var premieZvw = null, loonVoorZvw = null;
             if(this.codes.codeZvw[inkomstenverhouding.codeZvw].match(/wel/i)) {
                 premieZvw = 0;
                 
-                if(cumulatieven.kolom12 + salaris > this.premieZvw.maxBijdrageInkomen) {
-                    kolom12 = this.premieZvw.maxBijdrageInkomen - cumulatieven.kolom12;
+                if(cumulatieven.kolom12 + loonVoorIB > this.premieZvw.maxBijdrageInkomen) {
+                    loonVoorZvw = this.premieZvw.maxBijdrageInkomen - cumulatieven.kolom12;
                 }else{
-                    kolom12 = salaris;
+                    loonVoorZvw = loonVoorIB;
                 }
                 
                 if(inkomstenverhouding.codeZvw == 'K' || inkomstenverhouding.codeZvw == 'M') {
                     var tariefZvw = this.premieZvw[inkomstenverhouding.codeZvw == 'K' ? 'werkgeversHeffing' : 'eigenBijdrage'];
-                    premieZvw = this.floorCents(API.tariefBerekening(salaris, tariefZvw));
+                    premieZvw = this.floorCents(API.tariefBerekening(loonVoorZvw, tariefZvw));
                 }
             }
             
@@ -281,10 +285,8 @@
                 }
             }
             
-            var kolom3 = salaris;
-            var kolom15 = loonbelasting - loonheffingsKorting - arbeidsKorting;
-            var kolom17 = kolom3 - premieZvw - kolom15;
-            var kolom18 = arbeidsKorting;
+            var inhoudingIB = loonbelasting - loonheffingsKorting - arbeidsKorting;
+            var kolom17 = loonInGeld - premieZvw - inhoudingIB;
             var brutoLoon = salaris;
             var nettoLoon = salaris - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting;
             var uitbetaald = nettoLoon + reiskosten + wkrVergoeding;
@@ -296,17 +298,17 @@
                 periode: 1*maand,
                 kolom1: maanden[(maand-1)] + ' ' + this.kalenderJaar,
                 kolom2: inkomstenverhouding.nummer,
-                kolom3: kolom3,
-                kolom4: 0,
+                kolom3: loonInGeld,
+                kolom4: loonInNatura,
                 kolom5: 0,
                 kolom7: 0,
-                kolom8: kolom8,
-                kolom12: kolom12,
-                kolom14: salaris,
-                kolom15: kolom15,
+                kolom8: loonVoorWV,
+                kolom12: loonVoorZvw,
+                kolom14: loonVoorIB,
+                kolom15: inhoudingIB,
                 kolom16: premieZvw,
                 kolom17: kolom17,
-                kolom18: kolom18,
+                kolom18: arbeidsKorting,
                 kolom19: 0,
                 salaris: salaris,
                 loonheffingsKorting: loonheffingsKorting,
@@ -321,6 +323,7 @@
                 uurLoon: uurloon,
                 reiskilometers: reiskilometers,
                 reiskosten: reiskosten,
+                bijtelling: bijtelling,
                 wkrVergoeding: wkrVergoeding,
                 inkomstenverhouding: inkomstenverhouding,
                 leeftijd: leeftijd,
