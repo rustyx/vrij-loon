@@ -41,9 +41,10 @@ Voor een volledige uitleg van de invoervelden bij de inkomstenverhouding verwijz
 ### Voor softwareontwikkelaars: how maak ik een release van een nieuwe versie?
 
 1. Pas het versienummer in `package.json` aan.
-2. `grunt build`
-3. `git commit`, `git push`
-4. (eventueel) Upload de `dist` folder naar je web server.
+2. `bower install`
+3. `grunt build`
+4. `git commit`, `git push`
+5. (eventueel) Upload de `dist` folder naar je web server.
 
 <a name="database"></a>
 
