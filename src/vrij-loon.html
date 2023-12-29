@@ -336,6 +336,15 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                                             <td>{{nf salaris /}}</th>
                                             <td>{{nf cumulatief.salaris /}}</td>
                                         </tr>
+                                        {{if bonus }}
+                                        <tr>
+                                            <td>Bonus</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{nf bonus /}}</th>
+                                            <td></td>
+                                        </tr>
+                                        {{/if}}
                                         <tr>
                                             <td><strong>BRUTOLOON</strong></td>
                                             <td></td>
@@ -1022,6 +1031,18 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                             <div class="form-group">
                                 <select class="form-control" id="inkomstenverhouding" name="inkomstenverhouding" multiple required>
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">   
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="bonus">Eenmalige bonus</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="bonus" name="bonus" step="0.01">
                             </div>
                         </div>
                     </div>

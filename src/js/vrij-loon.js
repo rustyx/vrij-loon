@@ -181,24 +181,29 @@
             return Math.round(value * 100) / 100;
         },
         // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/model-loonstaat-2017
-        maakLoonstaat: function(maand, inkomstenverhouding, werkgever, werknemer, voorgaandeLoonstaten) {
-            var cumulatieven = {}, voorgaandeLoonstaat;
-            //for(var prevMaand in voorgaandeLoonstaten) {
+        maakLoonstaat: function(maand, inkomstenverhouding, werkgever, werknemer, voorgaandeLoonstaten, bonus) {
+            var cumulatieven = {
+                kolom3: 0,
+                kolom4: 0,
+                kolom5: 0,
+                kolom12: 0,
+                loonbelasting: 0,
+                loonheffingsKorting: 0,
+                arbeidsKorting: 0,
+            };
             for(var prevMaand = 0; prevMaand < voorgaandeLoonstaten.length; prevMaand++) {
                 for(var kolom in voorgaandeLoonstaten[prevMaand]) {
                     if (typeof voorgaandeLoonstaten[prevMaand][kolom] === 'string') {
                         continue;
                     }
-                    if (!cumulatieven[kolom]) {
-                        cumulatieven[kolom] = 0;
-                    }
-                    cumulatieven[kolom] += voorgaandeLoonstaten[prevMaand][kolom];
+                    cumulatieven[kolom] = (cumulatieven[kolom] || 0) + voorgaandeLoonstaten[prevMaand][kolom];
                 }
             }
 
             var salaris = parseInt(inkomstenverhouding.brutoLoon);
             var bijtelling = parseFloat(inkomstenverhouding.bijtelling) || 0;
-            var loonInGeld = salaris;
+            bonus = parseFloat(bonus) || 0;
+            var loonInGeld = salaris + bonus;
             var loonInNatura = bijtelling;
             var loonVoorIB = loonInGeld + loonInNatura;
             
@@ -216,12 +221,13 @@
             // Het verwachte arbeidsinkomen gebruiken we om de juiste arbeidsKortingen toe te passen
             // Als we minder dan 12 voorgaande loonstaten hebben corrigeren we hiervoor met het huidige salaris
             // Op deze manier zal het minder snel voorkomen dat je te veel arbeidsKorting krijgt
-            var verwachtArbeidsInkomen = (cumulatieven.kolom3 || 0) + (cumulatieven.kolom4 || 0) + (cumulatieven.kolom5 || 0);
-            verwachtArbeidsInkomen += (13 - maand + 12 - rekenMaandenInJaar) * loonVoorIB;
+            var verwachtArbeidsInkomen = cumulatieven.kolom3 + cumulatieven.kolom4 + cumulatieven.kolom5;
+            verwachtArbeidsInkomen += (13 - maand + 12 - rekenMaandenInJaar) * (salaris + loonInNatura) + bonus;
             
             // Bereken de verschuldigde loonbelasting
             // kolom15
-            var loonbelasting = this.floorCents(API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]) / 12);
+            var loonbelastingJaar = API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]);
+            var loonbelasting = this.floorCents(Math.max(0, loonbelastingJaar - cumulatieven.loonbelasting) / (13 - maand));
 
             // Bereken de Zvw premie, rekening houdend met het maximale bijdrage inkomen
             // kolom16
@@ -249,8 +255,8 @@
                 loonheffingsKorting = this.berekenTarief('heffingsKorting', verwachtArbeidsInkomen, aowParameter);
                 arbeidsKorting = this.berekenTarief('arbeidsKorting', verwachtArbeidsInkomen, aowParameter);
                 
-                loonheffingsKorting = this.roundCents(loonheffingsKorting / 12);
-                arbeidsKorting = this.roundCents(arbeidsKorting / 12);
+                loonheffingsKorting = this.roundCents(Math.max(0, loonheffingsKorting - cumulatieven.loonheffingsKorting) / (13 - maand));
+                arbeidsKorting = this.roundCents(Math.max(0, arbeidsKorting - cumulatieven.arbeidsKorting) / (13 - maand));
             }
             
             // Bereken het aantal loon dagen in deze maand
@@ -285,10 +291,10 @@
                 }
             }
             
-            var inhoudingIB = loonbelasting - loonheffingsKorting - arbeidsKorting;
+            var inhoudingIB = Math.max(0, loonbelasting - loonheffingsKorting - arbeidsKorting);
             var kolom17 = loonInGeld - premieZvw - inhoudingIB;
-            var brutoLoon = salaris;
-            var nettoLoon = salaris - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting;
+            var brutoLoon = loonInGeld;
+            var nettoLoon = loonInGeld - premieZvw - loonbelasting + loonheffingsKorting + arbeidsKorting;
             var uitbetaald = nettoLoon + reiskosten + wkrVergoeding;
             var now = new Date();
             var vandaag = zpad(now.getDate()) + '-' + zpad(now.getMonth() + 1) + '-' + now.getFullYear();
@@ -311,6 +317,7 @@
                 kolom18: arbeidsKorting,
                 kolom19: 0,
                 salaris: salaris,
+                bonus: bonus,
                 loonheffingsKorting: loonheffingsKorting,
                 arbeidsKorting: arbeidsKorting,
                 loonbelasting: loonbelasting,
@@ -422,10 +429,10 @@
                         var inkomstenverhouding = db.inkomstenverhouding({nummer:loonstaatVoor[0]},{werkgever:loonstaatVoor[1]},{werknemer:loonstaatVoor[2]}).first();
 
                         var voorgaande = db.loonuitdraai(function() {
-                            return this.inkomstenverhouding.id == inkomstenverhouding.id && this.jaar == row.jaar && this.periode != row.maand;
+                            return this.inkomstenverhouding.id == inkomstenverhouding.id && this.jaar == row.jaar && this.periode < row.maand;
                         }).get();
 
-                        var loonstaat = jaarTarieven.maakLoonstaat(row.maand, inkomstenverhouding, werkgever, werknemer, voorgaande);
+                        var loonstaat = jaarTarieven.maakLoonstaat(row.maand, inkomstenverhouding, werkgever, werknemer, voorgaande, row.bonus);
                         loonstaat.inkomstenverhoudingIndex = inkomstenverhoudingIndex;
                         
                         var bestaat = db.loonuitdraai(  {inkomstenverhoudingIndex:loonstaat.inkomstenverhoudingIndex},
@@ -563,7 +570,7 @@
             
             this.loonuitdraaiChart = new Chart($('#chart-salaris canvas')[0].getContext('2d'), {
                 type: 'bar',
-                data: this.createLoonuitdraaiDataset('salaris'),
+                data: this.createLoonuitdraaiDataset('brutoLoon'),
                 options: {
                     responsive: true,
                     legend: {
@@ -882,10 +889,10 @@
             for(var i = 0; i < tarieven.length; i++) {
                 tarief = tarieven[i];
                 
-                berekendTarief+= Math.ceil(bereken(Math.min(bedrag, tarief.bovenGrens) - vorigeBovenGrens, tarief));
+                berekendTarief += Math.ceil(bereken((tarief.bovenGrens ? Math.min(bedrag, tarief.bovenGrens) : bedrag) - vorigeBovenGrens, tarief));
                 vorigeBovenGrens = tarief.bovenGrens;
                 
-                if( bedrag <= vorigeBovenGrens ) break;
+                if (!tarief.bovenGrens || bedrag <= vorigeBovenGrens) break;
             }
             
             return berekendTarief;
