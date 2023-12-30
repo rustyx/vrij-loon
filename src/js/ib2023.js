@@ -183,7 +183,7 @@
         },
         
         // Would have preferred string literals, but IE doesnt get that (Edge does)
-        loonstaatTemplate: (function () {
+        xloonstaatTemplate: (function () {
             var i= 1;
             /* @preserve 
             <h1>Loonstaat 2023 <small>periode {{:periode}}, werknemer {{: werknemer.nummer }} / {{: inkomstenverhouding.nummer}}</small></h1>

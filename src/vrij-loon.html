@@ -288,13 +288,328 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                     
                     <!-- Tab panes -->
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane" id="overzicht">
-                            <p>// TODO, mogelijkheid tot aanpassingen implementeren</p>
-                        </div>
+                        <div role="tabpanel" class="tab-pane" id="overzicht"></div>
                         <div role="tabpanel" class="tab-pane" id="loonstaat"></div>
                         <div role="tabpanel" class="tab-pane active" id="loonstrook"></div>
                     </div>
-                    
+
+                    <script id="tmpl-overzicht" type="text/x-jsrender">
+                        <h1>
+                            {{if periode==12}}
+                                Jaaropgaaf {{:jaar}}</small>
+                            {{else}}
+                                Overzicht {{:jaar}} <small>periode {{:periode}}</small>
+                            {{/if}}
+                        </h1>
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <h3>Werknemer</h3>
+                                
+                                <div class="row">
+                                    <div class="col-xs-7">Naam en voorletters:</div>
+                                    <div class="col-xs-5">{{: werknemer.voorletters }} {{: werknemer.naam }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Burgerservicenummer (BSN):</div>
+                                    <div class="col-xs-5">{{: werknemer.bsn }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Adres:</div>
+                                    <div class="col-xs-5">{{: werknemer.straat }} {{: werknemer.huisnummer }} {{: werknemer.toevoeging }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Postcode:</div>
+                                    <div class="col-xs-5">{{: werknemer.postcode }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Woonplaats:</div>
+                                    <div class="col-xs-5">{{: werknemer.plaats }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Land:</div>
+                                    <div class="col-xs-5">{{: werknemer.land }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Geboortedatum:</div>
+                                    <div class="col-xs-5">{{: werknemer.geboorteDatum }}</div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <h3>Inhoudingsplichtige/werkgever</h3>
+                                
+                                <div class="row">
+                                    <div class="col-xs-6">Naam:</div>
+                                    <div class="col-xs-6">{{: werkgever.naam }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Adres:</div>
+                                    <div class="col-xs-6">{{: werkgever.adres }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Postcode:</div>
+                                    <div class="col-xs-6">{{: werkgever.postcode }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Woonplaats:</div>
+                                    <div class="col-xs-6">{{: werkgever.plaats }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">&nbsp;</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Loonheffingennummer</div>
+                                    <div class="col-xs-6">{{: werkgever.nummer }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Loonheffingskorting</div>
+                                    <div class="col-xs-6">{{: inkomstenverhouding.loonheffingsKorting ? 'Ja' : 'Nee' }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        1. Loon voor de loonbelasting/volksverzekeringen<br/>
+                                        <small>kolom 14</small>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf cumulatief.kolom14 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        2. Ingehouden loonbelasting/ premie volksverzekeringen<br/>
+                                        <small>kolom 15</small>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf cumulatief.kolom15 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        3. Verrekende arbeidskorting<br/>
+                                        <small>kolom 18</small>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf cumulatief.kolom18 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        4. Ingehouden bijdrage Zvw<br/>
+                                        <small>kolom 16</small>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf cumulatief.kolom16 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        5. Totaal premies WW/ZW/WIA/WAO
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf 0 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        6. Werkgeversheffing Zvw
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {{nf 0 /}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                    </script>
+
+                    <script id="tmpl-loonstaat" type="text/x-jsrender">
+                        <h1>Loonstaat {{:jaar}} <small>periode {{:periode}}, werknemer {{: werknemer.nummer }} / {{: inkomstenverhouding.nummer}}</small></h1>
+                        
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <h3>Werknemer</h3>
+                                
+                                <div class="row">
+                                    <div class="col-xs-7">Naam en voorletters:</div>
+                                    <div class="col-xs-5">{{: werknemer.voorletters }} {{: werknemer.naam }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Burgerservicenummer (BSN):</div>
+                                    <div class="col-xs-5">{{: werknemer.bsn }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Adres:</div>
+                                    <div class="col-xs-5">{{: werknemer.straat }} {{: werknemer.huisnummer }} {{: werknemer.toevoeging }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Postcode:</div>
+                                    <div class="col-xs-5">{{: werknemer.postcode }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Woonplaats:</div>
+                                    <div class="col-xs-5">{{: werknemer.plaats }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Land:</div>
+                                    <div class="col-xs-5">{{: werknemer.land }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-7">Geboortedatum:</div>
+                                    <div class="col-xs-5">{{: werknemer.geboorteDatum }}</div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <h3>Inhoudingsplichtige/werkgever</h3>
+                                
+                                <div class="row">
+                                    <div class="col-xs-6">Naam:</div>
+                                    <div class="col-xs-6">{{: werkgever.naam }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Adres:</div>
+                                    <div class="col-xs-6">{{: werkgever.adres }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Postcode:</div>
+                                    <div class="col-xs-6">{{: werkgever.postcode }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Woonplaats:</div>
+                                    <div class="col-xs-6">{{: werkgever.plaats }}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">&nbsp;</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">&nbsp;</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">Loonheffingennummer</div>
+                                    <div class="col-xs-6">{{: werkgever.nummer }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Gegevens voor de tabeltoepassing</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-xs-4">
+                                Loonheffingskorting
+                            </div>
+                            <div class="col-xs-8">
+                                {{if inkomstenverhouding.loonheffingsKorting }}Ja{{else}}Nee{{/if}}
+                            </div>
+                        </div>
+
+                        <hr class="divider">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>1. Loon-<br/>tijdvak</th>
+                                    <th>2. Nr.<br/>ink-<br/>verh.</th>
+                                    <th>3. Loon<br/>in geld</th>
+                                    <th>4. Loon<br/>in anders<br/>dan geld</th>
+                                    <th>5. Fooien/<br/>uitkeringen</th>
+                                    <th>7. Aftrek-<br/>posten</th>
+                                    <th>8. Loon<br/>voor Wv</th>
+                                    <th>12. Loon<br/>voor Zvw</th>
+                                    <th>14. Loon<br/>voor IB/Vv</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for rows}}
+                                <tr>
+                                    <td class="l">{{:tijdvak}}</td>
+                                    <td>{{:kolom2}}</td>
+                                    <td>{{nf kolom3 /}}</td>
+                                    <td>{{nf kolom4 /}}</td>
+                                    <td>{{nf kolom5 /}}</td>
+                                    <td>{{nf kolom7 /}}</td>
+                                    <td>{{nf kolom8 /}}</td>
+                                    <td>{{nf kolom12 /}}</td>
+                                    <td>{{nf kolom14 /}}</td>
+                                </tr>
+                                {{/for}}
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>1. Loon-<br/>tijdvak</th>
+                                    <th>15. Ingehouden<br/>IB/premie Vv</th>
+                                    <th>16. Ingehouden<br/>bijdrage Zvw</th>
+                                    <th>17. Uitbetaald<br/>bedrag</th>
+                                    <th>18. Verrekende<br/>arbeidskorting</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for rows}}
+                                <tr>
+                                    <td class="l">{{:tijdvak}}</td>
+                                    <td>{{nf kolom15 /}}</td>
+                                    <td>{{nf kolom16 /}}</td>
+                                    <td>{{nf kolom17 /}}</td>
+                                    <td>{{nf kolom18 /}}</td>
+                                </tr>
+                                {{/for}}
+                            </tbody>
+                        </table>
+
+                        <hr class="divider">
+                    </script>
+
                     <script id="tmpl-loonstrook" type="text/x-jsrender">
                         <h1>Salarisspecificatie {{: kolom1 }}</h1>
                         
@@ -368,6 +683,15 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.</p>
                                             <td>-{{nf kolom15 /}}</td>
                                             <td>-{{nf cumulatief.kolom15 /}}</td>
                                         </tr>
+                                        {{if cumulatief.kolom18 }}
+                                        <tr>
+                                            <td>Incl. arbeidskorting</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{nf kolom18 /}}</td>
+                                            <td></td>
+                                        </tr>
+                                        {{/if}}
                                         <tr>
                                             <td>Zorgverzekeringswet (Zvw)</td>
                                             <td></td>

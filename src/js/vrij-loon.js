@@ -102,6 +102,14 @@
             return number ? number : 0;
         }
     }
+
+    function floorCents(value) {
+        return Math.floor(value * 100) / 100;
+    }
+
+    function roundCents(value) {
+        return Math.round(value * 100) / 100;
+    }
     
     $.fn.vrijLoon = function( options ) {
         var cmd, cmdFn;
@@ -143,43 +151,12 @@
     };
     
     $.fn.vrijLoon.basisTarief = {
-        tarief: function(tariefType, aow) {
-            return this[tariefType][aow];
-        },
-        berekenBox1: function(inkomen, aow, maand) {
-            return API.tariefBerekeningCumulatief(inkomen, this.box1[aow]);
-        },
-        
         berekenTarief: function(tariefType, inkomen, aow) {
             if(this[tariefType][aow] === false) return this[tariefType][aow];
             
             return API.tariefBerekeningAfhankelijk(inkomen, this[tariefType][aow]);
         },
-        
-        berekenHeffingsKorting: function(inkomen, aow) {
-            return this.berekenTarief('heffingsKorting', inkomen, aow);
-        },
-        
-        berekenArbeidsKorting: function(inkomen, aow) {
-            return this.berekenTarief('arbeidsKorting', inkomen, aow);
-        },
-        
-        berekenPremieZvw: function(inkomen, verzekerd) {
-            var tarief = this.premieZvw[verzekerd];
-            
-            return API.tariefBerekening(inkomen, tarief);
-        },
-        grensPremieZvw: function(inkomen, verzekerd) {
-            var tarief = this.premieZvw[verzekerd];
-            
-            return API.tariefBerekening(inkomen, tarief);
-        },
-        floorCents: function(value) {
-            return Math.floor(value * 100) / 100;
-        },
-        roundCents: function(value) {
-            return Math.round(value * 100) / 100;
-        },
+                
         // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/model-loonstaat-2017
         maakLoonstaat: function(maand, inkomstenverhouding, werkgever, werknemer, voorgaandeLoonstaten, bonus) {
             var cumulatieven = {
@@ -227,7 +204,7 @@
             // Bereken de verschuldigde loonbelasting
             // kolom15
             var loonbelastingJaar = API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]);
-            var loonbelasting = this.floorCents(Math.max(0, loonbelastingJaar - cumulatieven.loonbelasting) / (13 - maand));
+            var loonbelasting = floorCents(Math.max(0, loonbelastingJaar - cumulatieven.loonbelasting) / (13 - maand));
 
             // Bereken de Zvw premie, rekening houdend met het maximale bijdrage inkomen
             // kolom16
@@ -243,7 +220,7 @@
                 
                 if(inkomstenverhouding.codeZvw == 'K' || inkomstenverhouding.codeZvw == 'M') {
                     var tariefZvw = this.premieZvw[inkomstenverhouding.codeZvw == 'K' ? 'werkgeversHeffing' : 'eigenBijdrage'];
-                    premieZvw = this.floorCents(API.tariefBerekening(loonVoorZvw, tariefZvw));
+                    premieZvw = floorCents(API.tariefBerekening(loonVoorZvw, tariefZvw));
                 }
             }
             
@@ -255,8 +232,8 @@
                 loonheffingsKorting = this.berekenTarief('heffingsKorting', verwachtArbeidsInkomen, aowParameter);
                 arbeidsKorting = this.berekenTarief('arbeidsKorting', verwachtArbeidsInkomen, aowParameter);
                 
-                loonheffingsKorting = this.roundCents(Math.max(0, loonheffingsKorting - cumulatieven.loonheffingsKorting) / (13 - maand));
-                arbeidsKorting = this.roundCents(Math.max(0, arbeidsKorting - cumulatieven.arbeidsKorting) / (13 - maand));
+                loonheffingsKorting = roundCents(Math.max(0, loonheffingsKorting - cumulatieven.loonheffingsKorting) / (13 - maand));
+                arbeidsKorting = roundCents(Math.max(0, arbeidsKorting - cumulatieven.arbeidsKorting) / (13 - maand));
             }
             
             // Bereken het aantal loon dagen in deze maand
@@ -271,10 +248,10 @@
             var reiskilometers = 0, reiskosten = 0;
             if(inkomstenverhouding.reiskostenOnbelast) {
                 reiskilometers = inkomstenverhouding.reiskostenOnbelast * loonDagen;
-                reiskosten = this.floorCents(reiskilometers * this.onbelasteKmVergoeding);
+                reiskosten = floorCents(reiskilometers * this.onbelasteKmVergoeding);
             }
 
-            var wkrVergoeding = this.roundCents(parseFloat(inkomstenverhouding.wkrVergoeding) || 0);
+            var wkrVergoeding = roundCents(parseFloat(inkomstenverhouding.wkrVergoeding) || 0);
 
             var uurloon = salaris / 174;
             var minimumloon = 0;
@@ -482,47 +459,43 @@
             API.container.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var tabId = $(e.target).attr('aria-controls'),
                     body = API.container.find('#' + tabId),
-                    title = $('title'),
                     data = body.parents('.page').data('loonuitdraai');
                 
-                if(tabId == 'loonstaat') {
-                    var tmpl = $.templates( $.fn.vrijLoon.tarieven[data.jaar].loonstaatTemplate );
-                    
-                    document.title = 'Vrij Loon - Loonstaat ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
-                    body.html( tmpl.render(data) );
-                }else if(tabId == 'loonstrook') {
-                    var tmpl = $.templates('#tmpl-' + tabId);
-                    
-                    data['ibDitJaar'] = API.tarievenVoorJaar(data.jaar);
-                    
-                    var cumulatief = {}, value;
-                    db.loonuitdraai({inkomstenverhoudingIndex:data.inkomstenverhouding.nummer+'|'+data.werkgever.nummer+'|'+data.werknemer.nummer},{jaar:data.jaar})
-                        .each(function(row, rowInt) {
-                        if(row.periode <= data.periode) {
-                            for(var key in row) {
-                                value = parseFloat(row[key]);
-                                if(value) {
-                                    if(!cumulatief[key]) cumulatief[key] = 0;
-                                    cumulatief[key]+= value;
-                                }
-                            }
-                        }
-                    });
-                    
-                    data['cumulatief'] = {};
-                    for(var key in cumulatief) {
-                        data['cumulatief'][key] = cumulatief[key];
-                    }
-                    
-                    var now = new Date();
-                    data['vandaag'] = zpad(now.getDate()) + '-' +
-                                      zpad(now.getMonth() + 1) + '-' +
-                                      now.getFullYear();
+                var now = new Date();
+                data['vandaag'] = zpad(now.getDate()) + '-' + zpad(now.getMonth() + 1) + '-' + now.getFullYear();
 
+                data['ibDitJaar'] = API.tarievenVoorJaar(data.jaar);
+
+                var cumulatief = {}, rows = [];
+                db.loonuitdraai({inkomstenverhoudingIndex:data.inkomstenverhouding.nummer+'|'+data.werkgever.nummer+'|'+data.werknemer.nummer},{jaar:data.jaar})
+                    .each(function(row, rowInt) {
+                    if (row.periode > data.periode) { return; }
+                    var r = {cumulatief: {}, tijdvak: zpad(row.jaar) + "-" + zpad(row.periode)};
+                    for (var key in row) {
+						r[key] = row[key];
+                        r.cumulatief[key] = cumulatief[key] = (cumulatief[key] || 0) + (parseFloat(row[key]) || 0);
+                    }
+                    rows.push(r);
+                });
+                data['cumulatief'] = cumulatief;
+                data['rows'] = rows;
+                
+                if (tabId == 'overzicht') {
+                    var tmpl = $.templates($.fn.vrijLoon.tarieven[data.jaar].loonstaatTemplate || '#tmpl-' + tabId);
+                    
+                    document.title = 'Vrij Loon - Overzicht ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
+                    body.html( tmpl.render(data) );
+                } else if (tabId == 'loonstaat') {
+                    var tmpl = $.templates('#tmpl-' + tabId);
+
+                    document.title = 'Vrij Loon - Loonstaat ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
+                    console.log(data);
+                    body.html( tmpl.render(data) );
+                } else if (tabId == 'loonstrook') {
+                    var tmpl = $.templates('#tmpl-' + tabId);
+                                        
                     document.title = 'Vrij Loon - Loonstrook ' + data.jaar + '-' + zpad(data.periode) + ' - ' + data.werknemer.nummer + ' ' + data.werknemer.naam;
                     body.html( tmpl.render(data) );
-                } else {
-                    
                 }
             });
             

@@ -148,6 +148,26 @@ body {
 #loonstaat .row .row small {
     color: #777;
 }
+#loonstaat table th {
+    vertical-align: top;
+}
+
+#loonstaat table th,
+#loonstaat table td {
+    padding: 0 8px;
+}
+
+#loonstaat table td {
+    text-align: right;
+}
+
+#loonstaat table td:l {
+    text-align: left;
+}
+
+#loonstaat table thead tr {
+    background-color: #f5f5f5;
+}
 
 #loonstrook table th,
 #loonstrook table td {
