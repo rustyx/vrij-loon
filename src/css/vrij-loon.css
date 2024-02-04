@@ -2,11 +2,15 @@
  * Base structure
  */
 
+/* Stable viewport width */
+html {
+  overflow-y: scroll;
+}
+
 /* Move down content because we have a fixed navbar that is 50px tall */
 body {
     padding-top: 50px;
 }
-
 
 /*
  * Global add-ons
@@ -228,7 +232,7 @@ body {
         padding: 0;
         width: 100%;
     }
-    
+
     .main:last-child {
         page-break-after: never;
     }
