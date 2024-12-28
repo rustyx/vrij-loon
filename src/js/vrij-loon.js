@@ -193,10 +193,18 @@
             var loonInGeld = salaris + bonus;
             var loonInNatura = bijtelling;
             var loonVoorIB = loonInGeld + loonInNatura;
-
+            var basisLoonWV = loonVoorIB;
+            // Aanname: Tabel 11, maximumpremieloon, kolom "maand" == kolom "jaar" / 12.
+            // TODO: wordt december bonus ook op de max zvw bijdrage per maand afgetopt of niet?
+            if (loonVoorIB > this.premieZvw.maxBijdrageInkomen / 12 && maand < 12) {
+                basisLoonWV = this.premieZvw.maxBijdrageInkomen / 12;
+            }
+            if (cumulatieven.kolom12 + basisLoonWV > this.premieZvw.maxBijdrageInkomen) {
+                basisLoonWV = this.premieZvw.maxBijdrageInkomen - cumulatieven.kolom12;
+            }
             // Bereken het loon voor de werknemersverzekeringen, rekenind houdend met het maximum rekenbedrag
             // TODO: dit ondersteunen we helaas (nog) niet
-            var loonVoorWV = inkomstenverhouding.codeLoon == 17 ? 0 : loonVoorIB;
+            var loonVoorWV = inkomstenverhouding.codeLoon == 17 ? 0 : basisLoonWV;
 
             // Bereikt de werknemer dit jaar de AOW leeftijd?
             // TODO: we ondersteunen (vooralsnog) alleen een leeftijd jonger dan AOW
@@ -222,13 +230,7 @@
             var premieZvw = null, loonVoorZvw = null;
             if(this.codes.codeZvw[inkomstenverhouding.codeZvw].match(/wel/i)) {
                 premieZvw = 0;
-
-                if(cumulatieven.kolom12 + loonVoorIB > this.premieZvw.maxBijdrageInkomen) {
-                    loonVoorZvw = this.premieZvw.maxBijdrageInkomen - cumulatieven.kolom12;
-                }else{
-                    loonVoorZvw = loonVoorIB;
-                }
-
+                loonVoorZvw = basisLoonWV;
                 if(inkomstenverhouding.codeZvw == 'K' || inkomstenverhouding.codeZvw == 'M') {
                     var tariefZvw = this.premieZvw[inkomstenverhouding.codeZvw == 'K' ? 'werkgeversHeffing' : 'eigenBijdrage'];
                     premieZvw = floorCents(API.tariefBerekening(loonVoorZvw, tariefZvw));
