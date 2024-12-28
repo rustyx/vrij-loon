@@ -111,6 +111,12 @@
         return Math.round(value * 100) / 100;
     }
 
+    // This is to avoid 1 cent fluctuations between adjacent months
+    function roundSmallDifference(a, b) {
+        // Max difference is 0.5 cent * 12 months, i.e. 0.06
+        return b && Math.abs(a - b) < 0.06 ? b : a;
+    }
+
     $.fn.vrijLoon = function( options ) {
         var cmd, cmdFn;
         var args = $.makeArray( arguments );
@@ -168,7 +174,11 @@
                 loonheffingsKorting: 0,
                 arbeidsKorting: 0,
             };
+            var voorgaandeLoonstaat = null;
             for(var prevMaand = 0; prevMaand < voorgaandeLoonstaten.length; prevMaand++) {
+                if (voorgaandeLoonstaten[prevMaand].periode == maand - 1) {
+                    voorgaandeLoonstaat = voorgaandeLoonstaten[prevMaand];
+                }
                 for(var kolom in voorgaandeLoonstaten[prevMaand]) {
                     if (typeof voorgaandeLoonstaten[prevMaand][kolom] === 'string') {
                         continue;
@@ -205,6 +215,7 @@
             // kolom15
             var loonbelastingJaar = API.tariefBerekeningCumulatief(verwachtArbeidsInkomen, this.box1[aowParameter]);
             var loonbelasting = floorCents(Math.max(0, loonbelastingJaar - cumulatieven.loonbelasting) / (13 - maand));
+            loonbelasting = roundSmallDifference(loonbelasting, voorgaandeLoonstaat && voorgaandeLoonstaat.loonbelasting);
 
             // Bereken de Zvw premie, rekening houdend met het maximale bijdrage inkomen
             // kolom16
@@ -234,6 +245,9 @@
 
                 loonheffingsKorting = roundCents(Math.max(0, loonheffingsKorting - cumulatieven.loonheffingsKorting) / (13 - maand));
                 arbeidsKorting = roundCents(Math.max(0, arbeidsKorting - cumulatieven.arbeidsKorting) / (13 - maand));
+
+                loonheffingsKorting = roundSmallDifference(loonheffingsKorting, voorgaandeLoonstaat && voorgaandeLoonstaat.loonheffingsKorting);
+                arbeidsKorting = roundSmallDifference(arbeidsKorting, voorgaandeLoonstaat && voorgaandeLoonstaat.arbeidsKorting);
             }
 
             // Bereken het aantal loon dagen in deze maand
