@@ -1,26 +1,26 @@
 /*!
 * VrijLoon
 * Copyright (C) 2018 Pndtech BV
-* 
+*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 ;(function($) {
     var tarief;
-        
+
     // Handboek Loonheffingen
     // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/handboek-loonheffingen-2023
-    
+
     $.fn.vrijLoon.tarieven['2023'] = tarief = $.extend( {}, $.fn.vrijLoon.basisTarief, {
         kalenderJaar: 2023,
         // https://www.rijksoverheid.nl/onderwerpen/pensioen/toekomst-pensioenstelsel/aow-leeftijd-stijgt-minder-snel
@@ -102,9 +102,9 @@
             },
         },
         // https://www.rijksoverheid.nl/onderwerpen/minimumloon/bedragen-minimumloon
-        minimum: { 
-            20230101: {
-                23: { dag: 89.28, week: 446.40, maand: 1934.40 },
+        minimum: {
+            1: {
+                21: { dag: 89.28, week: 446.40, maand: 1934.40 },
             }
         },
         // https://www.belastingdienst.nl/wps/wcm/connect/nl/auto-en-vervoer/content/reizen-werk-privegebruik-eigen-vervoer-reiskostenaftrek
@@ -163,7 +163,7 @@
                 { bedrag: 0 },
             ],
         },
-        
+
         arbeidsKorting: {
             niet: [
                 { bovenGrens: 10741, percentage: 8.231 },
@@ -181,20 +181,20 @@
                 { bedrag: 0 },
             ],
         },
-        
+
         // Would have preferred string literals, but IE doesnt get that (Edge does)
         xloonstaatTemplate: (function () {
             var i= 1;
-            /* @preserve 
+            /* @preserve
             <h1>Loonstaat 2023 <small>periode {{:periode}}, werknemer {{: werknemer.nummer }} / {{: inkomstenverhouding.nummer}}</small></h1>
             <p>Kalenderjaar: {{:jaar}}</p>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <h3>Werknemer</h3>
-                    
+
                     <div class="row">
                         <div class="col-xs-7">Naam en voorletters:</div>
                         <div class="col-xs-5">{{: werknemer.voorletters }} {{: werknemer.naam }}</div>
@@ -222,7 +222,7 @@
                 </div>
                 <div class="col-xs-6">
                     <h3>Inhoudingsplichtige/werkgever</h3>
-                    
+
                     <div class="row">
                         <div class="col-xs-6">Naam:</div>
                         <div class="col-xs-6">{{: werkgever.naam }}</div>
@@ -255,15 +255,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-12">
                     <h3>Gegevens voor de tabeltoepassing</h3>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-xs-4">
                     Loonheffingskorting
@@ -274,7 +274,7 @@
             </div>
             <br/>
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -299,9 +299,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -326,9 +326,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -353,9 +353,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -380,9 +380,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -407,9 +407,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -434,9 +434,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -462,5 +462,5 @@
                 </div>
             </div>*/ return i; }).toString().match(/[^]*\/\*\s(@preserve)?([^]*)\*\/[^]*\}$/)[2],
     });
-    
+
 })(jQuery);

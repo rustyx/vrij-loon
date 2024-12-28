@@ -251,12 +251,16 @@
             }
 
             // Bereken het aantal loon dagen in deze maand
-            var dagVanDeWeek, loonDagen = 0;
-            for(var dag = 1; dag <= (new Date(this.kalenderJaar, maand, 0)).getDate(); dag++) {
-                dagVanDeWeek = (new Date(this.kalenderJaar, maand - 1, dag)).getDay()
-                if(dagVanDeWeek && dagVanDeWeek < 6)
+            // TODO: daadwerkelijk gewerkte uren/dagen bijhouden.
+            var loonDagen = 0;
+            var dagen = (new Date(this.kalenderJaar, maand, 0)).getDate();
+            var dagVanDeWeek = (new Date(this.kalenderJaar, maand - 1, 1)).getDay() + 6;
+            for (var dag = 1; dag <= dagen; dag++) {
+                if ((dagVanDeWeek++ % 7) < 5) { // ma-vr
                     loonDagen++;
+                }
             }
+            var loonUren = loonDagen * 8;
 
             // Bereken de reiskosten vergoeding indien van toepassing
             var reiskilometers = 0, reiskosten = 0;
@@ -276,8 +280,23 @@
             var sortedMinimums = Object.keys(this.minimum).sort().reverse();
             for(var i = 0; i < sortedMinimums.length; i++) {
                 var beginDatum = sortedMinimums[i];
-                if( 1*(this.kalenderJaar + ('0'+maand).slice(-2) + '01') >= beginDatum) {
-                    minimumloon = this.minimum[beginDatum][(leeftijd > 23 ? 23 : leeftijd)][tijdvak];
+                if (maand >= beginDatum) {
+                    var sortedYears = Object.keys(this.minimum[beginDatum]).sort().reverse();
+                    for (var j = 0; j < sortedYears.length; j++) {
+                        var y = sortedYears[j];
+                        if (y <= leeftijd) {
+                            minimumloon = this.minimum[beginDatum][y][tijdvak];
+                            if (minimumloon) {
+                                break;
+                            }
+                            var minimumPerUur = this.minimum[beginDatum][y]['hour'];
+                            if (!minimumPerUur) {
+                                break;
+                            }
+                            minimumloon = minimumPerUur * loonUren;
+                            break;
+                        }
+                    }
                     break;
                 }
             }
@@ -313,7 +332,7 @@
                 arbeidsKorting: arbeidsKorting,
                 loonbelasting: loonbelasting,
                 loonDagen: loonDagen,
-                loonUren: loonDagen * 8,
+                loonUren: loonUren,
                 brutoLoon: brutoLoon,
                 nettoLoon: nettoLoon,
                 uitbetaald: uitbetaald,

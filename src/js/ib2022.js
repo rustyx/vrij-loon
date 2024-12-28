@@ -1,26 +1,26 @@
 /*!
 * VrijLoon
 * Copyright (C) 2018 Pndtech BV
-* 
+*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 ;(function($) {
     var tarief;
-        
+
     // Handboek Loonheffingen
     // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/handboek-loonheffingen-2022
-    
+
     $.fn.vrijLoon.tarieven['2022'] = tarief = $.extend( {}, $.fn.vrijLoon.basisTarief, {
         kalenderJaar: 2022,
         aowLeeftijd: [66, 7],
@@ -101,9 +101,9 @@
             },
         },
         // https://www.rijksoverheid.nl/onderwerpen/minimumloon/bedragen-minimumloon
-        minimum: { 
-            20220101: {
-                23: { dag: 81.06, week: 405.30, maand: 1756.20 },
+        minimum: {
+            1: {
+                21: { dag: 81.06, week: 405.30, maand: 1756.20 },
             }
         },
         // https://www.belastingdienst.nl/wps/wcm/connect/nl/auto-en-vervoer/content/reizen-werk-privegebruik-eigen-vervoer-reiskostenaftrek
@@ -162,7 +162,7 @@
                 { bedrag: 0 },
             ],
         },
-        
+
         arbeidsKorting: {
             niet: [
                 { bovenGrens: 10351, percentage: 4.541 },
@@ -181,5 +181,5 @@
             ],
         }
     });
-    
+
 })(jQuery);

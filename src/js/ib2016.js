@@ -1,23 +1,23 @@
 /*!
 * VrijLoon
 * Copyright (C) 2017 Pndtech BV
-* 
+*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 ;(function($) {
     var tarief;
-    
+
     $.fn.vrijLoon.tarieven['2016'] = tarief = $.extend( {}, $.fn.vrijLoon.basisTarief, {
         kalenderJaar: 2016,
         aowLeeftijd: [65, 6],
@@ -54,7 +54,7 @@
                 //58: 'Arbeidsongeschiktheidspensioen dat via de werkgever is opgebouwd',
                 //59: 'Lijfrenten die zijn afgesloten in het kader van een individuele of collectieve arbeidsovereenkomst',
                 //60: 'Lijfrenten die niet zijn afgesloten in het kader van een individuele of collectieve arbeidsovereenkomst',
-                //61: 'Aanvulling van de werkgever aan een werknemer op een uitkering werknemersverzekeringen, terwijl de dienstbetrekking is beëindigd',
+                //61: 'Aanvulling van de werkgever aan een werknemer op een uitkering werknemersverzekeringen, terwijl de dienstbetrekking is beï¿½indigd',
                 //62: 'Ontslagvergoeding/transitievergoeding',
                 //63: 'Overige, niet hiervoor aangegeven, pensioenen of samenloop van meerdere pensioenen/lijfrenten (al dan niet hiervoor aangegeven) of een betaling op grond van een afspraak na einde dienstbetrekking',
             },
@@ -96,7 +96,7 @@
             },
         },
         minimum: {
-            20160701: {
+            1: {
                 23: { dag: 70.95, week: 354.75, maand: 1537.20 },
             }
         },
@@ -116,7 +116,7 @@
                 { naam: 'Schijf 4', percentage: 52 },
             ],
         },
-        
+
         premieZvw: {
             maxBijdrageInkomen: 52763,
             eigenBijdrage: {
@@ -128,7 +128,7 @@
                 minimum: 45,
             },
         },
-        
+
         heffingsKorting: {
             niet: [
                 { bovenGrens: 19922, bedrag: 2242 },
@@ -142,7 +142,7 @@
                 { bedrag: 0 },
             ],
         },
-        
+
         arbeidsKorting: {
             niet: [
                 { bovenGrens: 9147, percentage: 1.793 },
@@ -167,13 +167,13 @@
             /* @preserve
             <h1>Loonstaat 2017 <small>periode {{:periode}}, werknemer {{: werknemer.nummer }} / {{: inkomstenverhouding.nummer}}</small></h1>
             <p>Kalenderjaar: {{:jaar}}</p>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <h3>Werknemer</h3>
-                    
+
                     <div class="row">
                         <div class="col-xs-7">Naam en voorletters:</div>
                         <div class="col-xs-5">{{: werknemer.voorletters }} {{: werknemer.naam }}</div>
@@ -201,7 +201,7 @@
                 </div>
                 <div class="col-xs-6">
                     <h3>Inhoudingsplichtige/werkgever</h3>
-                    
+
                     <div class="row">
                         <div class="col-xs-6">Naam:</div>
                         <div class="col-xs-6">{{: werkgever.naam }}</div>
@@ -234,15 +234,15 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-12">
                     <h3>Gegevens voor de tabeltoepassing</h3>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-xs-4">
                     Loonheffingskorting
@@ -253,7 +253,7 @@
             </div>
             <br/>
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -278,9 +278,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -305,9 +305,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -332,9 +332,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -359,9 +359,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -386,9 +386,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">
@@ -413,9 +413,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <hr class="divider">
-            
+
             <div class="row">
                 <div class="col-xs-6">
                     <div class="row">

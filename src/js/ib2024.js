@@ -1,26 +1,26 @@
 /*!
 * VrijLoon
 * Copyright (C) 2018 Pndtech BV
-* 
+*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 ;(function($) {
     var tarief;
-        
+
     // Nieuwsbrief Loonheffingen
     // https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/themaoverstijgend/brochures_en_publicaties/nieuwsbrief-loonheffingen-2024
-    
+
     $.fn.vrijLoon.tarieven['2024'] = tarief = $.extend( {}, $.fn.vrijLoon.basisTarief, {
         kalenderJaar: 2024,
         // https://www.rijksoverheid.nl/onderwerpen/pensioen/toekomst-pensioenstelsel/aow-leeftijd-stijgt-minder-snel
@@ -102,9 +102,9 @@
             },
         },
         // https://www.rijksoverheid.nl/onderwerpen/minimumloon/bedragen-minimumloon
-        minimum: { 
-            20240101: {
-                23: { dag: 106.16, week: 446.40, maand: 1934.40 },
+        minimum: {
+            1: {
+                21: { hour: 13.27 },
             }
         },
         // https://www.belastingdienst.nl/wps/wcm/connect/nl/auto-en-vervoer/content/reizen-werk-privegebruik-eigen-vervoer-reiskostenaftrek
@@ -163,7 +163,7 @@
                 { bedrag: 0 },
             ],
         },
-        
+
         arbeidsKorting: {
             niet: [
                 { bovenGrens: 11490, percentage: 8.425 },
@@ -182,5 +182,5 @@
             ],
         }
     });
-    
+
 })(jQuery);
