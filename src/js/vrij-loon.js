@@ -862,12 +862,17 @@
 
             control.find('option').remove();
             if(!required) control.append($('<option/>').attr('value', '').text('Geen'));
+            var count = 0;
             for(var key in object) {
                 option = $('<option/>').attr('value', key).text((!verbergKeyInWaarde ? key+' - ' : '') + object[key]);
 
                 if((defaultValue && !value && defaultValue == key) || (value && value == key)) option.attr('selected','selected');
 
                 control.append(option);
+                count++;
+            }
+            if (count == 1) {
+                option.attr('selected','selected');
             }
         },
 
